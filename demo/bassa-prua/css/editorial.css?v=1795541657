@@ -1,0 +1,130 @@
+/* =====================================================================
+   Bassa Prua — strat editorial peste kit
+   Zodiak (display) + Satoshi (text). Imagini mari, tipografie amplă.
+   ===================================================================== */
+@font-face { font-family: "Zodiak"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("../fonts/Zodiak-400.woff2") format("woff2"); }
+@font-face { font-family: "Satoshi"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("../fonts/Satoshi-400.woff2") format("woff2"); }
+@font-face { font-family: "Satoshi"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("../fonts/Satoshi-500.woff2") format("woff2"); }
+@font-face { font-family: "Satoshi"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("../fonts/Satoshi-700.woff2") format("woff2"); }
+
+:root {
+  --p-bg: #F7F3EC;
+  --p-surface: #EFE9DE;
+  --p-ink: #16333E;
+  --p-muted: #5A6B72;
+  --p-accent: #B3563C;
+  --p-accent-ink: #FFFFFF;
+  --p-action: #16333E;
+  --p-action-ink: #F7F3EC;
+  --p-inv-bg: #16333E;
+  --p-inv-surface: #1D404D;
+  --p-inv-ink: #F7F3EC;
+  --p-inv-muted: #A9B8BC;
+  --p-inv-accent: #E0A08B;
+  --p-inv-action: #F7F3EC;
+  --p-inv-action-ink: #16333E;
+  --font-display: "Zodiak", Georgia, serif;
+  --font-text: "Satoshi", system-ui, sans-serif;
+  --display-weight: 400;
+  --display-tracking: -0.018em;
+  --t-h1: clamp(2.9rem, 6.4vw, 5.6rem);
+  --t-h2: clamp(2rem, 3.6vw, 3.2rem);
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+
+body { background: var(--p-bg); color: var(--p-ink); font-family: var(--font-text); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--display-tracking); }
+
+/* etichete mici, litere spațiate */
+.t-label, .eyebrow {
+  font-family: var(--font-text); font-weight: 500; font-size: .72rem;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--p-accent);
+}
+
+/* ---------- HERO full-bleed cu overlay ---------- */
+.hero-bp { position: relative; min-height: 92svh; display: grid; align-items: end; overflow: clip; background: #16333E; }
+.hero-bp__media { position: absolute; inset: 0; }
+.hero-bp__media img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); animation: bp-ken 26s var(--ease) forwards; }
+@keyframes bp-ken { to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .hero-bp__media img { animation: none; transform: none; } }
+.hero-bp::after { content: ""; position: absolute; inset: 0; background:
+  linear-gradient(180deg, rgba(10,28,36,.55) 0%, rgba(10,28,36,.12) 38%, rgba(10,28,36,.72) 100%); }
+.hero-bp__inner { position: relative; z-index: 1; padding-block: clamp(32px, 6vw, 72px); width: 100%; }
+.hero-bp__eyebrow { display: flex; align-items: center; gap: 14px; color: #F7F3EC; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; }
+.hero-bp__eyebrow::before { content: ""; width: 42px; height: 1px; background: currentColor; opacity: .7; }
+.hero-bp h1 { color: #F7F3EC; font-size: var(--t-h1); line-height: .98; margin: .5em 0 .34em; max-width: 15ch; text-wrap: balance; }
+.hero-bp__lead { color: rgba(247,243,236,.86); font-size: clamp(1rem, 1.2vw, 1.15rem); line-height: 1.6; max-width: 44ch; }
+.hero-bp__strip { margin-top: clamp(28px, 4vw, 52px); display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0; border-top: 1px solid rgba(247,243,236,.28); }
+.hero-bp__strip > div { padding: 18px 20px 0 0; }
+.hero-bp__strip > div + div { border-left: 1px solid rgba(247,243,236,.22); padding-left: 20px; }
+.hero-bp__strip b { display: block; font-family: var(--font-display); font-size: clamp(1.3rem, 2vw, 1.9rem); color: #F7F3EC; font-weight: 400; }
+.hero-bp__strip span { display: block; margin-top: 4px; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,243,236,.72); }
+.hero-bp__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+.hero-bp .btn--primary { background: #F7F3EC; color: #16333E; }
+.hero-bp .btn--secondary { border-color: rgba(247,243,236,.5); color: #F7F3EC; }
+
+/* secțiunile noi nu au înălțime fixă de ecran */
+main > section.bp-band, main > section.bp-rail, main > section.bp-quote { height: auto; min-height: 0; }
+/* ---------- benzi editoriale ---------- */
+.bp-band { padding-block: clamp(64px, 9vw, 128px); }
+.bp-intro { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 80px); align-items: start; }
+.bp-intro h2 { font-size: clamp(1.8rem, 3.4vw, 3rem); line-height: 1.06; margin: 0; }
+.bp-intro p { margin: 0 0 1em; font-size: clamp(1rem, 1.1vw, 1.08rem); line-height: 1.7; color: var(--p-muted); max-width: 58ch; }
+.bp-intro .bp-facts { display: flex; gap: clamp(20px, 3vw, 48px); margin-top: 26px; padding-top: 20px; border-top: 1px solid #D8D0C2; }
+.bp-facts div b { display: block; font-family: var(--font-display); font-size: clamp(1.4rem, 2vw, 2rem); font-weight: 400; }
+.bp-facts div span { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--p-muted); }
+
+/* ---------- rail foto ---------- */
+.bp-rail { padding-block: clamp(28px, 4vw, 52px) clamp(48px, 6vw, 84px); }
+.bp-rail__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.bp-rail__track { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(260px, 38vw); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; scrollbar-width: thin; }
+.bp-rail__track figure { margin: 0; scroll-snap-align: start; }
+.bp-rail__track img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 2px; transition: transform .7s var(--ease); }
+.bp-rail__track figure:hover img { transform: scale(1.03); }
+.bp-rail__track figcaption { margin-top: 8px; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--p-muted); }
+
+/* ---------- camere: alternate, imagini mari ---------- */
+.bp-rooms { display: grid; gap: clamp(40px, 6vw, 90px); }
+.bp-room { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(20px, 4vw, 56px); align-items: center; }
+.bp-room:nth-child(even) .bp-room__media { order: 2; }
+.bp-room__media { position: relative; margin: 0; overflow: clip; border-radius: 2px; }
+.bp-room__media img { display: block; width: 100%; aspect-ratio: 3/2; object-fit: cover; transition: transform .8s var(--ease); }
+.bp-room__media:hover img { transform: scale(1.03); }
+.bp-room__num { position: absolute; left: 18px; top: 10px; font-family: var(--font-display); font-size: 2.6rem; line-height: 1; color: #fff; mix-blend-mode: difference; }
+.bp-room__body h3 { font-size: clamp(1.5rem, 2.4vw, 2.2rem); margin: 0 0 .35em; }
+.bp-room__facts { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--p-accent); margin: 0 0 1em; }
+.bp-room__body p { color: var(--p-muted); line-height: 1.7; margin: 0 0 1.2em; max-width: 46ch; }
+.bp-room__actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+/* ---------- bandă citat pe imagine ---------- */
+.bp-quote { position: relative; display: grid; place-items: center; min-height: 74svh; overflow: clip; background: #16333E; text-align: center; padding-block: clamp(56px, 8vw, 120px); }
+.bp-quote img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+.bp-quote__in { position: relative; z-index: 1; max-width: min(880px, 86vw); padding: 0 8px; }
+.bp-quote::before { content: ""; position: absolute; inset: 0; background: rgba(10,28,36,.45); z-index: 0; }
+.bp-quote blockquote { margin: 0; font-family: var(--font-display); font-size: clamp(1.7rem, 3vw, 2.9rem); line-height: 1.14; color: #F7F3EC; text-wrap: balance; }
+.bp-quote p { color: rgba(247,243,236,.8); margin-top: 1.2em; font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; }
+
+/* ---------- prenota ---------- */
+main > section.book { background: var(--p-inv-bg); }
+.book__head h2 { font-size: clamp(1.9rem, 3.2vw, 2.9rem); }
+.field input, .field select { min-height: 52px; border-radius: 3px; }
+.book__photo img { border-radius: 2px; }
+
+/* ---------- detalii ---------- */
+.bp-rule { height: 1px; background: #D8D0C2; border: 0; margin: 0; }
+.section-head h2 { font-size: var(--t-h2); }
+.btn { border-radius: 3px; letter-spacing: .01em; }
+.btn--primary { background: var(--p-action); color: var(--p-action-ink); }
+.btn--secondary { border-color: #C9BFAD; color: var(--p-ink); background: transparent; }
+
+@media (max-width: 900px) {
+  .bp-intro { grid-template-columns: 1fr; }
+  .bp-room { grid-template-columns: 1fr; }
+  .bp-room:nth-child(even) .bp-room__media { order: 0; }
+  .hero-bp__strip { grid-template-columns: 1fr; }
+  .hero-bp__strip > div + div { border-left: 0; padding-left: 0; border-top: 1px solid rgba(247,243,236,.22); margin-top: 12px; padding-top: 12px; }
+}
