@@ -610,6 +610,23 @@ function avvia() {
   });
   $('#bp-next').addEventListener('click', mesi);
 
+  // I bottoni "Verifica le date" delle camere portano al calendario
+  // con quella camera già scelta.
+  Array.prototype.forEach.call(document.querySelectorAll('[data-camera]'), function (a) {
+    a.addEventListener('click', function () {
+      var id = a.getAttribute('data-camera');
+      var esiste = false;
+      for (var i = 0; i < ROOMS.length; i++) if (ROOMS[i].id === id) esiste = true;
+      if (!esiste) return;
+      state.room = id;
+      state.dal = null;
+      state.al = null;
+      montaCamere();
+      ospiti();
+      disegna();
+    });
+  });
+
   if (statoDaUrl()) return;
 
   $('#bp-attesa').hidden = false;
