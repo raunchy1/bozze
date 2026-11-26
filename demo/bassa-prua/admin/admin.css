@@ -129,3 +129,5 @@ details.storico .richiesta{box-shadow:none;border:1px solid #EDF3F3}
 
 .nota-booking{background:#fff;border:1px solid #EAD6A8;color:#7A5312;border-radius:12px;padding:10px 13px;font-size:12.5px;line-height:1.45;margin:0 0 16px}
 .nota-booking a{color:#7A5312;font-weight:600}
+
+.aiuto{font-size:13px;color:var(--grigio);margin:0 0 12px;max-width:560px;line-height:1.45}
