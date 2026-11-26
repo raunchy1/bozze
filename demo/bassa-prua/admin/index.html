@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<script>if (window.top !== window.self) { document.documentElement.style.display = "none"; }</script>
+<title>Prenotazioni · Bassa Prua</title>
+<link rel="icon" href="../img/favicon-48.png">
+<link rel="stylesheet" href="admin.css?v=20261127a">
+</head>
+<body>
+
+<div class="accesso" id="v-accesso">
+  <form id="f-accesso" autocomplete="on">
+    <h1>Prenotazioni Bassa Prua</h1>
+    <p>Entra con il tuo account per vedere e gestire le richieste.</p>
+    <label for="email">Email o nome utente</label>
+    <input id="email" type="text" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <p class="errore" id="err-accesso" role="alert"></p>
+    <button class="btn blocco" type="submit" id="b-accedi">Entra</button>
+  </form>
+</div>
+
+<div id="v-pannello" hidden>
+  <header class="testata">
+    <div class="riga">
+      <a class="marchio" href="../it/" target="_blank" rel="noopener">
+        <img src="../img/logo-160.webp" alt="" width="30" height="30">
+        <span>Bassa Prua<small>Prenotazioni</small></span>
+      </a>
+      <button class="btn esci" type="button" id="b-esci">Esci</button>
+    </div>
+    <nav class="schede" role="tablist" aria-label="Sezioni">
+      <button type="button" role="tab" data-scheda="richieste" aria-selected="true">Richieste</button>
+      <button type="button" role="tab" data-scheda="calendario" aria-selected="false">Calendario</button>
+      <button type="button" role="tab" data-scheda="blocca" aria-selected="false">Blocca date</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="s-richieste" role="tabpanel">
+      <div class="conta">
+        <div><b id="c-pendenti">0</b><span>da confermare</span></div>
+        <div><b id="c-confermate">0</b><span>confermate</span></div>
+        <div><b id="c-incasso">—</b><span>prossimo arrivo</span></div>
+      </div>
+      <div class="avviso" id="avviso-scadenze" hidden></div>
+
+      <h2 class="sez">Da confermare <span class="num" id="n-pendenti">0</span></h2>
+      <div id="lista-pendenti"><div class="caricamento">Caricamento…</div></div>
+
+      <h2 class="sez">Prossime confermate <span class="num" id="n-confermate">0</span></h2>
+      <div id="lista-confermate"></div>
+
+      <details class="storico" id="storico-box">
+        <summary>Scadute, annullate e passate</summary>
+        <div id="lista-storico"></div>
+      </details>
+    </section>
+
+    <section id="s-calendario" role="tabpanel" hidden>
+      <div class="cal-testata">
+        <h2>Calendario delle camere</h2>
+        <div class="cal-nav">
+          <button type="button" id="cal-prev" aria-label="Mese precedente">‹</button>
+          <b id="cal-mese"></b>
+          <button type="button" id="cal-next" aria-label="Mese successivo">›</button>
+        </div>
+      </div>
+      <div id="calendario"></div>
+      <div class="legenda">
+        <span><i class="lg-pieno"></i>confermata</span>
+        <span><i class="lg-attesa"></i>in attesa (24h)</span>
+        <span><i class="lg-blocco"></i>bloccata a mano</span>
+      </div>
+    </section>
+
+    <section id="s-blocca" role="tabpanel" hidden>
+      <h2 class="sez">Blocca un periodo</h2>
+      <form class="modulo" id="f-blocca">
+        <label for="bl-room">Camera</label>
+        <select id="bl-room" required></select>
+        <div class="riga">
+          <div><label for="bl-in">Dal</label><input id="bl-in" type="date" required></div>
+          <div><label for="bl-out">Al</label><input id="bl-out" type="date" required></div>
+        </div>
+        <label for="bl-note">Nota (facoltativa)</label>
+        <input id="bl-note" type="text" maxlength="120" placeholder="Es. manutenzione, uso famiglia…">
+        <p class="errore" id="bl-err" role="alert"></p>
+        <button class="btn corallo" type="submit" id="bl-invia">Blocca le date</button>
+      </form>
+      <div class="blocchi" id="lista-blocchi"></div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.min.js" integrity="sha384-7i/4BYWz4Mn+lJfg2HWfEPfZQ7tmFKF3CTSKlXBpxWjNlLjcg+T6smpHG4gLmU1u" crossorigin="anonymous"></script>
+<script src="admin.js?v=20261127a"></script>
+</body>
+</html>

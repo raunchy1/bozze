@@ -267,3 +267,102 @@ body{padding-bottom:84px}
 .lb__prev{left:12px;top:50%;transform:translateY(-50%)}
 .lb__next{right:12px;top:50%;transform:translateY(-50%)}
 body.lb-lock{overflow:hidden}
+
+/* prenotazione con calendario (Bassa Prua) */
+.bp [hidden]{display:none!important}
+.bp-passi{display:grid;gap:10px;margin:20px 0 24px;padding:0;list-style:none}
+.bp-passi li{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:12px 14px;color:#fff;font-size:14px;line-height:1.35}
+.bp-passi b{flex:0 0 24px;height:24px;border-radius:50%;background:#fff;color:var(--corallo);display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600}
+.bp-app{display:grid;gap:18px;position:relative}
+.bp-sinistra{display:grid;gap:18px;align-content:start}
+.bp-blocco{background:#fff;border-radius:24px;padding:18px;color:var(--testo);box-shadow:0 12px 30px rgba(120,40,20,.12)}
+.bp-etichetta{display:flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--corallo);margin:0 0 12px}
+.bp-etichetta span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--corallo);color:#fff;font-size:11.5px;letter-spacing:0}
+.bp-camere{display:grid;gap:8px}
+.bp-camera{display:grid;gap:2px;text-align:left;padding:12px 14px;border-radius:14px;border:2px solid var(--acqua2);background:var(--acqua);color:var(--petrolio);cursor:pointer;font:inherit;transition:border-color .2s,background .2s,color .2s}
+.bp-camera:hover{border-color:var(--turchese)}
+.bp-camera b{font-size:14.5px;font-weight:600;line-height:1.25}
+.bp-camera span{font-size:12px;color:var(--grigio);line-height:1.3}
+.bp-camera .bp-camera__cap{margin-top:3px;font-weight:500;color:var(--turchese-s)}
+.bp-camera.is-attiva{background:var(--petrolio);border-color:var(--petrolio);color:#fff}
+.bp-camera.is-attiva span{color:#CFE7EA}
+.bp-camera.is-attiva .bp-camera__cap{color:var(--sabbia)}
+.bp-cal{padding:16px 14px 12px}
+.bp-cal-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.bp-cal-top .bp-etichetta{margin:0}
+.bp-mese{display:flex;align-items:center;gap:4px}
+.bp-mese b{font-size:14px;font-weight:600;color:var(--petrolio);text-transform:capitalize;min-width:132px;text-align:center}
+.bp-mese button{width:32px;height:32px;border-radius:50%;border:1px solid var(--acqua2);background:#fff;color:var(--petrolio);font-size:18px;line-height:1;cursor:pointer}
+.bp-mese button:disabled{opacity:.3;cursor:default}
+.bp-mese button:hover:not(:disabled){background:var(--acqua)}
+.bp-settimana{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.bp-settimana span{text-align:center;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--grigio);text-transform:uppercase}
+.bp-griglia{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.bp-vuoto{min-height:38px}
+.bp-giorno{height:38px;border:0;border-radius:11px;background:var(--acqua);color:var(--petrolio);font:500 14px/1 var(--b);cursor:pointer;position:relative;padding:0}
+.bp-giorno:hover{background:var(--acqua2)}
+.bp-giorno.is-oggi{box-shadow:inset 0 0 0 2px var(--turchese)}
+.bp-giorno.is-occupato{background:#F6E7E2;color:#C08D7D;text-decoration:line-through;font-weight:400}
+.bp-giorno.is-occupato:hover{background:#F1DAD2}
+.bp-giorno.is-passato{opacity:.3;cursor:default;background:#F3F4F4}
+.bp-giorno.is-scelto,.bp-giorno.is-arrivo,.bp-giorno.is-partenza{background:var(--corallo);color:#fff;text-decoration:none;font-weight:600}
+.bp-giorno.is-arrivo{border-radius:11px 0 0 11px}
+.bp-giorno.is-partenza{border-radius:0 11px 11px 0}
+.bp-giorno.is-arrivo.is-partenza{border-radius:11px}
+.bp-legenda{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:10px 0 0;font-size:11.5px;color:var(--grigio)}
+.bp-legenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.bp-leg-libero{background:var(--acqua);border:1px solid var(--acqua2)}
+.bp-leg-occ{background:#F6E7E2;border:1px solid #EBCFC6}
+.bp-leg-sel{background:var(--corallo)}
+.bp-leg-nota{margin:6px 0 0;font-size:11px;color:var(--grigio);line-height:1.35}
+.bp-sel{margin:12px 0 0;font-size:14px;font-weight:500;color:var(--petrolio);min-height:20px}
+.bp-sel.is-pronta{color:var(--corallo-s)}
+.bp-form .bp-campi{display:grid;gap:10px;margin:0}
+.bp-form .campo span{color:var(--grigio);font-size:12.5px}
+.bp-form .campo input,.bp-form .campo select{min-height:46px;border-radius:12px;border:1px solid #D9E6E6;background:#fff;color:var(--petrolio);padding:0 13px;font-size:15px}
+.bp-form .campo input:focus,.bp-form .campo select:focus{outline:2px solid var(--turchese);outline-offset:1px;border-color:var(--turchese)}
+.bp-errore{display:none;margin:10px 0 0;font-size:13.5px;line-height:1.35;color:#A3242F;background:#FCEBEA;border-radius:10px;padding:9px 11px}
+.bp-errore.is-visibile{display:block}
+.bp-invia{width:100%;margin-top:14px;border:0;background:var(--corallo);color:#fff;min-height:50px;font-size:15.5px}
+.bp-invia:hover{background:var(--corallo-s)}
+.bp-invia:disabled{opacity:.55;cursor:default}
+.bp-form .bp-nota{color:var(--grigio);font-size:12px;margin:10px 0 0;line-height:1.4}
+.bp-attesa{margin:22px 0;padding:18px;border-radius:16px;background:rgba(255,255,255,.16);color:#fff;font-size:14.5px;text-align:center}
+.bp-guasto{background:#fff;border-radius:18px;padding:18px;color:var(--testo);margin-top:16px}
+.bp-guasto p{margin:0 0 12px;color:var(--testo);font-size:14.5px}
+.bp-guasto__azioni{display:flex;flex-wrap:wrap;gap:10px}
+.bp-esito{background:#fff;border-radius:24px;padding:clamp(20px,4vw,32px);color:var(--testo);position:relative}
+.bp-esito h3{color:var(--petrolio);font-size:clamp(22px,3vw,28px);margin:0}
+.bp-esito p{color:var(--testo);font-size:15px;line-height:1.5}
+.bp-esito__testa{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.bp-ok{flex:0 0 44px;width:44px;height:44px;border-radius:50%;background:#2F7D4F;color:#fff;font-size:22px;display:inline-flex;align-items:center;justify-content:center}
+.bp-ok--grigio{background:#8A9A9A}
+.bp-codice{margin:3px 0 0!important;font-size:13px!important;color:var(--grigio)!important}
+.bp-codice b{color:var(--petrolio);font-size:14px;letter-spacing:.04em}
+.bp-riepilogo{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin:0 0 16px;padding:14px;background:var(--acqua);border-radius:14px}
+.bp-riepilogo dt{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--grigio);font-weight:600}
+.bp-riepilogo dd{margin:2px 0 0;font-size:14px;color:var(--petrolio);font-weight:500;line-height:1.3}
+.bp-conto{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--petrolio);color:#fff;border-radius:14px;padding:12px 16px;margin:0 0 14px}
+.bp-conto span{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#CFE7EA}
+.bp-conto b{font-variant-numeric:tabular-nums;font-size:22px;letter-spacing:.04em;color:var(--sabbia)}
+.bp-azioni{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 0}
+.bp-azioni .btn{min-height:46px;font-size:14.5px}
+.bp-wa{background:#25A65A;color:#fff;border-color:#25A65A}
+.bp-wa:hover{background:#1E8B4A}
+.bp-esito .bp-nota{color:var(--grigio);font-size:12px;margin:12px 0 0}
+.bp-link{display:inline-block;margin-top:14px;border:0;background:none;color:var(--corallo-s);font:600 14px var(--b);cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+.bp-scadenza{font-size:13px!important;color:var(--grigio)!important;margin:0!important}
+@media (min-width:560px){.bp-camere{grid-template-columns:repeat(3,1fr)}.bp-camera{padding:12px 12px}}
+@media (min-width:760px){
+  .bp-passi{grid-template-columns:repeat(3,1fr)}
+  .bp-app{grid-template-columns:1.08fr .92fr;gap:22px;align-items:start}
+  .bp-riepilogo{grid-template-columns:repeat(4,1fr)}
+}
+/* testi dentro le schede bianche: non ereditano il bianco della sezione corallo */
+.bp .bp-blocco p{color:var(--grigio)}
+.bp .bp-blocco .bp-etichetta{color:var(--corallo)}
+.bp .bp-blocco .bp-sel{color:var(--petrolio)}
+.bp .bp-blocco .bp-sel.is-pronta{color:var(--corallo-s)}
+.bp .bp-blocco .bp-legenda,.bp .bp-blocco .bp-leg-nota{color:var(--grigio)}
+.bp .bp-esito p{color:var(--testo)}
+.bp .bp-esito .bp-scadenza{color:var(--grigio)!important}

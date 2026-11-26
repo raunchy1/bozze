@@ -26,7 +26,7 @@
 <link rel="preload" href="../fonts/Poppins-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonts/Pacifico-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="../img/hero-phone-640.webp" imagesrcset="../img/hero-phone-480.webp 480w, ../img/hero-phone-640.webp 640w, ../img/hero-1067.webp 1067w" imagesizes="(min-width: 900px) 480px, 90vw">
-<link rel="stylesheet" href="../css/turchese.css?v=20261126t">
+<link rel="stylesheet" href="../css/turchese.css?v=20261127a">
 <script>document.documentElement.classList.add('js')</script>
 <script type="application/ld+json">
 {
@@ -254,24 +254,61 @@
 
   <section class="sez" id="prenota" aria-labelledby="prenota-h" style="padding-top:0">
     <div class="wrap">
-      <div class="prenota">
+      <div class="prenota bp" id="bp" data-lingua="it">
         <div class="cerchio" aria-hidden="true"></div>
         <span class="script">prenota</span>
-        <h2 id="prenota-h">Verifica le date e scriveteci</h2>
-        <p>Siamo una casa vacanza di tre camere: la disponibilità la confermiamo noi, di persona.</p>
-        <form id="book-form" data-mailto="mailto:marcellserra@yahoo.it?subject=Richiesta%20di%20disponibilit%C3%A0" onsubmit="return false">
-          <div class="campi">
-            <label class="campo"><span>Arrivo</span><input type="date" id="book-in" name="in"></label>
-            <label class="campo"><span>Partenza</span><input type="date" id="book-out" name="out"></label>
-            <label class="campo"><span>Ospiti</span><select id="book-g" name="g"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+        <h2 id="prenota-h">Scegli la camera e le date</h2>
+        <p>Le date restano bloccate per 24 ore. Poi scrivi a Marcello su WhatsApp e versi la caparra: solo allora la prenotazione è confermata.</p>
+        <ol class="bp-passi">
+          <li><b>1</b><span>Scegli camera e date</span></li>
+          <li><b>2</b><span>Blocchiamo le date per 24 ore</span></li>
+          <li><b>3</b><span>Caparra su WhatsApp: poi è confermata</span></li>
+        </ol>
+        <div class="bp-app" id="bp-app" hidden>
+          <div class="bp-sinistra">
+            <div class="bp-blocco">
+              <p class="bp-etichetta"><span>1</span> La camera</p>
+              <div class="bp-camere" id="bp-camere" role="radiogroup" aria-label="Scegli la camera"></div>
+            </div>
+            <div class="bp-blocco bp-cal">
+              <div class="bp-cal-top">
+                <p class="bp-etichetta"><span>2</span> Le date</p>
+                <div class="bp-mese">
+                  <button type="button" id="bp-prev" aria-label="Mese precedente">‹</button>
+                  <b id="bp-mese"></b>
+                  <button type="button" id="bp-next" aria-label="Mese successivo">›</button>
+                </div>
+              </div>
+              <div class="bp-settimana" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+              <div class="bp-griglia" id="bp-griglia"></div>
+              <p class="bp-legenda"><span><i class="bp-leg-libero"></i>libero</span><span><i class="bp-leg-occ"></i>occupato</span><span><i class="bp-leg-sel"></i>la tua scelta</span></p>
+              <p class="bp-leg-nota">Il giorno della partenza può essere occupato da un altro arrivo: si parte la mattina.</p>
+              <p class="bp-sel" id="bp-sel" aria-live="polite">Scegli il giorno di arrivo.</p>
+            </div>
           </div>
-          <div class="prenota__azioni">
-            <a class="btn btn--chiaro" id="book-wa" href="https://wa.me/393356241767?text=Buongiorno%2C%20vorrei%20chiedere%20la%20disponibilit%C3%A0%20a%20Bassa%20Prua%2C%20Palau." target="_blank" rel="noopener">Scrivici su WhatsApp</a>
-            <a class="btn btn--bordo-chiaro" href="tel:+393356241767">Chiama per prenotare</a>
-            <a class="btn btn--bordo-chiaro" id="book-mail" href="mailto:marcellserra@yahoo.it?subject=Richiesta%20di%20disponibilit%C3%A0&amp;body=Buongiorno%2C%20vorrei%20chiedere%20la%20disponibilit%C3%A0%20a%20Bassa%20Prua%2C%20Palau.">Scrivici un&#x27;email</a>
+          <form class="bp-blocco bp-form" id="bp-form" novalidate>
+            <p class="bp-etichetta"><span>3</span> I tuoi dati</p>
+            <div class="bp-campi">
+              <label class="campo"><span>Ospiti</span><select id="bp-ospiti"></select></label>
+              <label class="campo"><span>Nome e cognome</span><input id="bp-nome" name="nome" autocomplete="name" maxlength="80"></label>
+              <label class="campo"><span>Telefono / WhatsApp</span><input id="bp-tel" name="tel" type="tel" autocomplete="tel" inputmode="tel" maxlength="25"></label>
+              <label class="campo"><span>Email (facoltativa)</span><input id="bp-email" name="email" type="email" autocomplete="email" maxlength="120"></label>
+            </div>
+            <p class="bp-errore" id="bp-errore" role="alert"></p>
+            <button class="btn bp-invia" type="submit" id="bp-invia" disabled>Richiedi le date</button>
+            <p class="bp-nota">Nessun pagamento online. Usiamo i tuoi dati solo per gestire la richiesta. La caparra la concordi direttamente con Marcello.</p>
+          </form>
+        </div>
+        <p class="bp-attesa" id="bp-attesa">Carico il calendario…</p>
+        <div class="bp-guasto" id="bp-guasto" hidden>
+          <p>Il calendario non si carica in questo momento. Puoi comunque scriverci: ti diciamo noi se le date sono libere.</p>
+          <div class="bp-guasto__azioni">
+            <a class="btn btn--corallo" href="https://wa.me/393356241767?text=Buongiorno%2C%20vorrei%20chiedere%20la%20disponibilit%C3%A0%20a%20Bassa%20Prua%2C%20Palau." target="_blank" rel="noopener">Scrivici su WhatsApp</a>
+            <a class="btn btn--bordo" href="tel:+393356241767">Chiama</a>
+            <a class="btn btn--bordo" href="mailto:marcellserra@yahoo.it?subject=Richiesta%20di%20disponibilit%C3%A0">Email</a>
           </div>
-        </form>
-        <p class="prenota__nota">Rispondiamo direttamente noi, i proprietari. Nessuna caparra online.</p>
+        </div>
+        <div class="bp-esito" id="bp-esito" hidden aria-live="polite"></div>
       </div>
     </div>
   </section>
@@ -311,7 +348,7 @@
 
 <script type="application/json" id="gal-data">{"r1": ["../img/g-r1-0-800.webp", "../img/g-r1-1-800.webp", "../img/g-r1-2-800.webp", "../img/g-r1-3-800.webp", "../img/g-r1-4-800.webp", "../img/g-r1-5-800.webp", "../img/g-r1-6-800.webp", "../img/g-r1-7-800.webp", "../img/g-r1-8-800.webp"], "r2": ["../img/g-r2-0-800.webp", "../img/g-r2-1-800.webp", "../img/g-r2-2-800.webp", "../img/g-r2-3-800.webp", "../img/g-r2-4-800.webp", "../img/g-r2-5-800.webp", "../img/g-r2-6-800.webp", "../img/g-r2-7-800.webp", "../img/g-r2-8-800.webp"], "r3": ["../img/g-r3-0-800.webp", "../img/g-r3-1-800.webp", "../img/g-r3-2-800.webp", "../img/g-r3-3-800.webp", "../img/g-r3-4-800.webp", "../img/g-r3-5-800.webp", "../img/g-r3-6-800.webp", "../img/g-r3-7-800.webp", "../img/g-r3-8-800.webp", "../img/g-r3-9-800.webp", "../img/g-r3-10-800.webp"]}</script>
 <script type="module" src="../assets/gallery.js?v=20261126t"></script>
-<script type="module" src="../assets/booking.js?v=20261126t"></script>
+<script type="module" src="../assets/prenota.js?v=20261127a"></script>
 <script src="../assets/turchese.js?v=20261126t" defer></script>
 </body>
 </html>
