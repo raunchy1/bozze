@@ -277,7 +277,7 @@ document.addEventListener('click', function (ev) {
   if (!riga) return;
 
   if (azione === 'conferma') {
-    if (!confirm('Hai ricevuto la caparra da ' + riga.nome + '?\n\nLe date resteranno bloccate in modo definitivo.')) return;
+    if (!confirm('Hai ricevuto la caparra da ' + riga.nome + '?\n\nLe date resteranno bloccate in modo definitivo.\nControlla che siano libere anche su Booking.com: questa conferma blocca solo il calendario del sito.')) return;
     b.disabled = true;
     sb.rpc('bp_admin_conferma', { p_id: id }).then(function (r) {
       if (r.error) throw r.error;

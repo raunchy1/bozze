@@ -138,6 +138,10 @@ var T = {
   }
 }[LANG];
 
+var BOOKING_URL = LANG === 'en'
+  ? 'https://www.booking.com/hotel/it/bassa-prua.en-gb.html'
+  : 'https://www.booking.com/hotel/it/bassa-prua.html?lang=it';
+
 var ROOMS = LANG === 'en'
   ? [
       { id: 'terrazza', nome: 'Double room with terrace', cap: 2, extra: 'private bathroom · terrace' },
@@ -348,6 +352,24 @@ function disegna() {
   }
   sel.classList.toggle('is-pronta', !!(state.dal && state.al));
   $('#bp-invia').disabled = !(state.dal && state.al) || state.inviando;
+  aggiornaBooking();
+}
+
+function aggiornaBooking() {
+  var a = document.getElementById('bp-booking');
+  if (!a) return;
+  var conDate = !!(state.dal && state.al);
+  var u = BOOKING_URL;
+  if (conDate) {
+    u += (u.indexOf('?') === -1 ? '?' : '&') + 'checkin=' + encodeURIComponent(state.dal) +
+      '&checkout=' + encodeURIComponent(state.al) +
+      '&group_adults=' + encodeURIComponent($('#bp-ospiti').value) +
+      '&no_rooms=1&selected_currency=EUR';
+  }
+  a.href = u;
+  a.textContent = conDate
+    ? (LANG === 'en' ? 'Check these dates on Booking.com' : 'Cerca queste date su Booking.com')
+    : (LANG === 'en' ? 'Open Booking.com' : 'Apri Booking.com');
 }
 
 function scegli(giorno) {
