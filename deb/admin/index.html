@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pannello · Negozio dell’usato DEB</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css?v=1">
+<link rel="stylesheet" href="admin.css?v=1">
+<script>if (window.top !== window.self) { document.documentElement.style.display = "none"; }</script>
+</head>
+<body>
+<header class="bar"><div class="w">
+<a class="brand" href="./"><img src="../img/logo.svg" alt="" width="32" height="32"><b>DEB</b><small>Pannello</small></a>
+<a class="bag" href="../" target="_blank" rel="noopener">Vedi il negozio</a>
+<button class="link-btn nascosto" id="b-esci" type="button">Esci</button>
+</div></header>
+
+<main class="w">
+<section id="v-accesso" class="accesso">
+<h1>Accedi al pannello</h1>
+<form id="f-accesso">
+<div class="campo"><label for="email">Utente</label><input id="email" autocomplete="username" required></div>
+<div class="campo"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+<p class="errore-campo" id="err-accesso" role="alert"></p>
+<button class="b1 pieno-larghezza" id="b-accedi" type="submit" style="margin-top:16px">Accedi</button>
+</form>
+</section>
+
+<section id="v-pannello" class="nascosto">
+<nav class="schede" aria-label="Sezioni del pannello">
+<button type="button" data-scheda="ordini" aria-pressed="true">Ordini <i id="n-nuovi" class="num"></i></button>
+<button type="button" data-scheda="articoli" aria-pressed="false">Articoli</button>
+<button type="button" data-scheda="categorie" aria-pressed="false">Categorie</button>
+<button type="button" data-scheda="impostazioni" aria-pressed="false">Spedizione</button>
+</nav>
+<div id="contenuto"></div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.min.js" integrity="sha384-7i/4BYWz4Mn+lJfg2HWfEPfZQ7tmFKF3CTSKlXBpxWjNlLjcg+T6smpHG4gLmU1u" crossorigin="anonymous"></script>
+<script src="admin.js?v=1"></script>
+</body>
+</html>
