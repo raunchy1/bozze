@@ -4,7 +4,7 @@
 @font-face{font-family:"Public Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/publicsans-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 :root{--ink:#14261A;--ink2:#41604B;--line:#C4E6D1;--bg:#EDF8F1;--soft:#DCF2E4;--y:#00A94F;--err:#B3261E;--ok:#1E6B3A;
-  --verde:#00B85C;--verde2:#0B3A20;--verde3:#06351C;
+  --verde:#6BE34A;--verde2:#0B3A20;--verde3:#06351C;
   --h:"Bricolage Grotesque",system-ui,sans-serif;--b:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --pad:20px;--max:1180px;--r:8px;--head:60px}
 @media (min-width:760px){:root{--pad:32px;--head:68px}}
@@ -24,7 +24,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .salta:focus{left:12px}
 
 /* testata */
-.bar{position:sticky;top:0;z-index:40;background:rgba(0,184,92,.98);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(6,53,28,.12);color:var(--verde3)}
+.bar{position:sticky;top:0;z-index:40;background:rgba(107,227,74,.98);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(6,53,28,.12);color:var(--verde3)}
 .bar .w{height:var(--head);display:flex;align-items:center;gap:20px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;color:var(--verde3)}
 .brand img{width:32px;height:32px}

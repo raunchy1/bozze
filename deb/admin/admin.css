@@ -50,5 +50,5 @@
 .consiglio{font-size:14px;color:var(--ink2);margin-top:6px}
 .riga-wrap{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line)}
 .riga-wrap .riga-art{border-bottom:0;flex:1;min-width:0}
-.btn-pic.pubblica{background:var(--verde);border-color:var(--verde);color:#fff;white-space:nowrap}
-.bar .link-btn{color:#fff}
+.btn-pic.pubblica{background:var(--verde);border-color:var(--verde);color:#06351C;white-space:nowrap}
+.bar .link-btn{color:var(--verde3)}
