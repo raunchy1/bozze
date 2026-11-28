@@ -113,11 +113,11 @@ var catalogo = function () {
     var cats = r[0], arts = r[1];
     var cat = cats.filter(function (c) { return c.slug === slug; })[0];
     var ids = cat ? famiglia(cats, cat.id) : null;
-    var lista = cat ? arts.filter(function (a) { return ids.indexOf(a.categoria_id) !== -1; }) : arts;
+    var lista = (cat ? arts.filter(function (a) { return ids.indexOf(a.categoria_id) !== -1; }) : arts).filter(disponibile);
     var titolo = cat ? cat.nome : 'Tutti gli articoli';
     var padre = padreDi(cats, cat);
     document.title = titolo + ' · Negozio del Usato DEB';
-    var conArticoli = function (c) { var f = famiglia(cats, c.id); return arts.some(function (a) { return f.indexOf(a.categoria_id) !== -1; }); };
+    var conArticoli = function (c) { var f = famiglia(cats, c.id); return arts.some(function (a) { return disponibile(a) && f.indexOf(a.categoria_id) !== -1; }); };
     var top = radici(cats).filter(conArticoli);
     var sotto = cat ? figli(cats, (padre || cat).id).filter(conArticoli) : [];
     var briciole = '<a href="./">Home</a> › ' + (padre ? '<a href="catalogo.html?c=' + encodeURIComponent(padre.slug) + '">' + esc(padre.nome) + '</a> › ' : '') + esc(titolo);
