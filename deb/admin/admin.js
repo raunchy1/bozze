@@ -37,6 +37,7 @@ var ok = function (r) { if (r.error) throw r.error; return r.data; };
 var entra = function () {
   $('#v-accesso').classList.add('nascosto'); $('#v-pannello').classList.remove('nascosto'); $('#b-esci').classList.remove('nascosto');
   apri('ordini');
+  avviaNotifiche();
 };
 $('#f-accesso').addEventListener('submit', function (e) {
   e.preventDefault();
@@ -54,7 +55,61 @@ $('#f-accesso').addEventListener('submit', function (e) {
 $('#b-esci').addEventListener('click', function () { sb.auth.signOut().then(function () { location.reload(); }); });
 sb.auth.getSession().then(function (r) { if (r.data && r.data.session) entra(); });
 
-/* ---------- schede ---------- */
+/* ---------- notifiche dei nuovi ordini ---------- */
+var NOTIF = {visti: null, timer: null, ctx: null};
+var suono = function () {
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    NOTIF.ctx = NOTIF.ctx || new AC();
+    var ac = NOTIF.ctx, t = ac.currentTime;
+    [0, 0.22].forEach(function (d) {
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.value = d ? 988 : 784;
+      g.gain.setValueAtTime(0.0001, t + d);
+      g.gain.exponentialRampToValueAtTime(0.25, t + d + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.18);
+      o.connect(g); g.connect(ac.destination); o.start(t + d); o.stop(t + d + 0.2);
+    });
+  } catch (e) {}
+};
+var titoloBase = 'Pannello · Negozio del Usato DEB';
+var aggiornaTitolo = function (n) { document.title = (n ? '(' + n + ') ' : '') + titoloBase; };
+var avvisaOrdine = function (o, n) {
+  suono();
+  var testo = o ? (o.nome + ' · ' + euro(o.totale) + ' · ' + o.codice) : 'C’è un nuovo ordine da preparare.';
+  toast('Nuovo ordine: ' + testo);
+  try {
+    if (window.Notification && Notification.permission === 'granted') {
+      var nt = new Notification('Nuovo ordine su DEB', {body: testo, tag: 'deb-ordine', renotify: true});
+      nt.onclick = function () { window.focus(); nt.close(); };
+    }
+  } catch (e) {}
+  if (document.hidden) document.title = '(' + n + ') Nuovo ordine · DEB';
+  if (document.querySelector('.filtro-ord')) setTimeout(function () { ordini(); }, 600);
+};
+var controllaNuovi = function (primo) {
+  sb.from('deb_orders').select('id,codice,nome,totale,created_at', {count: 'exact'}).eq('stato', 'nuovo').order('created_at', {ascending: false}).limit(5).then(function (r) {
+    if (r.error) return;
+    var n = typeof r.count === 'number' ? r.count : (r.data || []).length;
+    var badge = $('#n-nuovi'); if (badge) badge.textContent = n || '';
+    aggiornaTitolo(n);
+    if (primo || NOTIF.visti === null) { NOTIF.visti = n; return; }
+    if (n > NOTIF.visti) avvisaOrdine((r.data || [])[0], n);
+    NOTIF.visti = n;
+  }).catch(function () {});
+};
+var avviaNotifiche = function () {
+  controllaNuovi(true);
+  if (NOTIF.timer) clearInterval(NOTIF.timer);
+  NOTIF.timer = setInterval(function () { controllaNuovi(false); }, 30000);
+  try {
+    sb.channel('deb-ordini-nuovi').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'deb_orders'}, function () { controllaNuovi(false); }).subscribe();
+  } catch (e) {}
+};
+document.addEventListener('visibilitychange', function () { if (!document.hidden) controllaNuovi(false); });
+
+
 var CATS = [];
 var caricaCat = function () { return sb.from('deb_categories').select('*').order('ordine').then(ok).then(function (c) { CATS = c; return c; }); };
 var apri = function (s) {
@@ -70,6 +125,12 @@ var contaNuovi = function () {
 /* ---------- ordini ---------- */
 var STATI = {nuovo: 'Nuovo', pagato: 'Pagato', spedito: 'Spedito', completato: 'Completato', annullato: 'Annullato'};
 var PAG = {carta: 'Carta / Postepay', paypal: 'PayPal', whatsapp: 'Da concordare su WhatsApp'};
+var bottoneNotifiche = function () {
+  if (!('Notification' in window)) return '';
+  if (Notification.permission === 'granted') return '<span class="mut" style="font-size:14px">Notifiche attive</span>';
+  if (Notification.permission === 'denied') return '<span class="mut" style="font-size:14px">Notifiche bloccate dal browser</span>';
+  return '<button class="b1" type="button" id="b-notif" style="min-height:40px;padding:0 16px;font-size:14px">Attiva notifiche</button>';
+};
 var filtroOrd = 'aperti';
 var ordini = function () {
   contaNuovi();
@@ -77,10 +138,18 @@ var ordini = function () {
   if (filtroOrd === 'aperti') q = q.in('stato', ['nuovo', 'pagato', 'spedito']);
   q.then(ok).then(function (lista) {
     var c = $('#contenuto');
-    c.innerHTML = '<div class="testa-pan"><h1>Ordini</h1></div><div class="filtro-ord">' +
+    c.innerHTML = '<div class="testa-pan"><h1>Ordini</h1>' + bottoneNotifiche() + '</div><div class="filtro-ord">' +
       ['aperti', 'tutti'].map(function (f) { return '<button type="button" data-f="' + f + '" aria-pressed="' + (filtroOrd === f) + '">' + (f === 'aperti' ? 'Da gestire' : 'Tutti') + '</button>'; }).join('') + '</div>' +
       (lista.length ? lista.map(schedaOrdine).join('') : '<p class="vuoto">Nessun ordine ' + (filtroOrd === 'aperti' ? 'da gestire' : '') + '. Quando qualcuno compra, lo trovate qui.</p>');
     $$('[data-f]', c).forEach(function (b) { b.addEventListener('click', function () { filtroOrd = b.getAttribute('data-f'); ordini(); }); });
+    var bn = $('#b-notif');
+    if (bn) bn.addEventListener('click', function () {
+      bn.disabled = true;
+      Notification.requestPermission().then(function (p) {
+        toast(p === 'granted' ? 'Notifiche attive: ti avviso a ogni nuovo ordine.' : 'Notifiche non attivate: puoi riprovare dalle impostazioni del browser.', p !== 'granted');
+        ordini();
+      });
+    });
     $$('select[data-stato]', c).forEach(function (s) {
       s.addEventListener('change', function () {
         sb.from('deb_orders').update({stato: s.value, updated_at: new Date().toISOString()}).eq('id', s.getAttribute('data-stato')).then(ok)

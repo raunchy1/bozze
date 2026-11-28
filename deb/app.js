@@ -121,6 +121,7 @@ var home = function () {
     document.getElementById('fatti').innerHTML =
       '<div><b class="num">' + euro(IMPOSTAZIONI.spedizione_costo) + '</b><span>Spedizione</span></div>' +
       '<div><b class="num">' + euro(IMPOSTAZIONI.soglia_gratis) + '</b><span>Da qui, è gratis</span></div>' +
+      '<div><b class="num">3–4 giorni</b><span>Consegna in Italia</span></div>' +
       '<div><b>Anela</b><span>Ritiro in negozio</span></div>';
     document.getElementById('reparti').innerHTML = radici(cats).filter(function (c) { return conta[c.id]; }).map(function (c) {
       return '<a href="catalogo.html?c=' + encodeURIComponent(c.slug) + '"><span>' + esc(c.nome) + '</span><span class="mut num">' + conta[c.id] + NB + '›</span></a>';
@@ -183,7 +184,7 @@ var articolo = function () {
       '<p class="desc">' + esc(a.descrizione) + '</p>' +
       '<div class="righe"><div><span>Condizione</span><span>' + esc(a.condizione) + '</span></div>' +
       (a.dettaglio ? '<div><span>Dettagli</span><span>' + esc(a.dettaglio) + '</span></div>' : '') +
-      '<div><span>Spedizione</span><span class="num">' + euro(IMPOSTAZIONI.spedizione_costo) + ', gratis da ' + euro(IMPOSTAZIONI.soglia_gratis) + '</span></div>' +
+      '<div><span>Spedizione</span><span class="num">' + euro(IMPOSTAZIONI.spedizione_costo) + ', gratis da ' + euro(IMPOSTAZIONI.soglia_gratis) + ' · 3–4 giorni lavorativi</span></div>' +
       '<div><span>Ritiro</span><span>In negozio ad Anela</span></div></div>' +
       '<div class="azioni-art">' + (disp ? '<button type="button" class="b1" id="aggiungi">Aggiungi alla borsa</button>' : '<button type="button" class="b1" disabled>Venduto</button>') +
       '<a class="b2" target="_blank" rel="noopener" href="https://wa.me/' + CFG.wa + '?text=' + encodeURIComponent('Ciao! Mi interessa: ' + a.titolo + ' (' + euro(a.prezzo) + ') — ' + location.href) + '">Chiedi su WhatsApp</a></div>' +

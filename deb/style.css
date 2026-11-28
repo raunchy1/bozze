@@ -63,11 +63,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mosaico img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
 .mosaico a:hover img{transform:scale(1.03)}
 @media (min-width:760px){.hero{grid-template-columns:1.1fr 1fr;align-items:center;padding:44px 36px}.hero .azioni{display:flex;flex-wrap:wrap}}
-.fatti{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:24px}
-.fatti div{padding:14px 0}
-.fatti div+div{border-left:1px solid var(--line);padding-left:14px}
+.fatti{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:24px}
+.fatti div{padding:14px 12px}
+.fatti div:nth-child(even){border-left:1px solid var(--line)}
+.fatti div:nth-child(n+3){border-top:1px solid var(--line)}
 .fatti b{display:block;font-family:var(--h);font-size:20px}
 .fatti span{font-size:13px;color:var(--ink2)}
+@media (min-width:760px){.fatti{grid-template-columns:repeat(4,1fr)}.fatti div{padding:14px 16px}.fatti div:nth-child(n+3){border-top:0}.fatti div:first-child{padding-left:0}}
 .sez{margin-top:40px}
 .sez h2{font-size:clamp(24px,3vw,30px);margin-bottom:12px}
 .testa-sez{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:16px}
