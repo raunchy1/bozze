@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/publicsans-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body data-pagina="home">
 <a class="salta" href="#app">Vai al contenuto</a>
@@ -34,14 +34,21 @@
 <section class="sez" aria-labelledby="h-rep"><h2 id="h-rep">Reparti</h2><div class="reparti" id="reparti"></div></section>
 <section class="sez" aria-labelledby="h-arr"><div class="testa-sez"><h2 id="h-arr">Ultimi arrivi</h2><a href="catalogo.html" id="n-articoli">Vedi tutti</a></div><div class="griglia" id="arrivi"><p class="caricamento">Caricamento…</p></div></section>
 <section class="sez" aria-labelledby="h-sv" style="background:var(--soft);border-radius:8px;padding:24px"><h2 id="h-sv">Servizio svuota cantine</h2><p class="mut" style="margin-top:8px;max-width:52ch">Hai una cantina o un garage da liberare? Scrivici: veniamo noi a vedere cosa si può recuperare.</p><a class="b2" style="margin-top:16px" href="https://wa.me/393890434162?text=Ciao!%20Vorrei%20informazioni%20sul%20servizio%20svuota%20cantine." target="_blank" rel="noopener">Chiedi informazioni</a></section>
+<section class="sez dove" aria-labelledby="h-dove" id="dove">
+<div class="testa-sez"><h2 id="h-dove">Dove siamo</h2><a id="link-indicazioni" href="https://www.google.com/maps/dir/?api=1&amp;destination=Via%20Roma%2012%2C%20Anela%20SS" target="_blank" rel="noopener">Indicazioni stradali</a></div>
+<div class="dove-griglia">
+<div class="dove-testo"><b>Negozio del Usato DEB</b><p class="mut" data-indirizzo>Via Roma 12, Anela (SS)</p><p class="mut" id="dove-orari" hidden></p><p class="mut">Ritiro in negozio gratuito. Se vieni da lontano, scrivici su WhatsApp prima di passare: ti diciamo se l’articolo è ancora disponibile.</p></div>
+<div class="dove-mappa" id="dove-mappa" hidden></div>
+</div>
+</section>
 </div>
 </main>
 <footer class="piede" id="contatti"><div class="w">
-<div><b>Negozio del Usato DEB</b>Via Roma 12, Anela (SS)<br>Nuovo e usato · Servizio svuota cantine<br>Spedizione in tutta Italia</div>
+<div><b>Negozio del Usato DEB</b><span data-indirizzo>Via Roma 12, Anela (SS)</span><br>Nuovo e usato · Servizio svuota cantine<br>Spedizione in tutta Italia</div>
 <div><b>Contatti</b><a href="https://wa.me/393890434162">WhatsApp 389 043 4162</a><br><a href="tel:+393890434162">Chiama 389 043 4162</a></div>
 <div><b>Ci trovi anche su</b>Facebook “deb nuovo e usato”<br><a href="https://www.vinted.it/member/83916878" target="_blank" rel="noopener">Vinted: jjg95135</a></div>
 <small>© <span data-anno>2026</span> Negozio del Usato DEB · Anteprima realizzata da <a href="https://websardegna.xyz" target="_blank" rel="noopener">WebSardegna</a></small>
 </div></footer>
-<script src="app.js?v=2" defer></script>
+<script src="app.js?v=3" defer></script>
 </body>
 </html>

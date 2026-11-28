@@ -35,11 +35,34 @@ var api = function (path, opz) {
     });
   });
 };
-var IMPOSTAZIONI = {spedizione_costo: 7, soglia_gratis: 70};
+var IMPOSTAZIONI = {spedizione_costo: 7, soglia_gratis: 70, mappa_zoom: 15};
+var TESTI = {indirizzo: 'Via Roma 12, Anela (SS)', mappa: 'Via Roma 12, Anela (SS)', orari: ''};
+var applicaTesti = function () {
+  var ind = TESTI.indirizzo || 'Via Roma 12, Anela (SS)';
+  document.querySelectorAll('[data-indirizzo]').forEach(function (el) { el.textContent = ind; });
+  var q = TESTI.mappa || ind;
+  var link = document.getElementById('link-indicazioni');
+  if (link) link.href = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(q);
+  var orari = document.getElementById('dove-orari');
+  if (orari) { orari.textContent = TESTI.orari || ''; orari.hidden = !TESTI.orari; }
+  var box = document.getElementById('dove-mappa');
+  if (box) {
+    if (!q) { box.hidden = true; box.innerHTML = ''; }
+    else {
+      box.hidden = false;
+      box.innerHTML = '<iframe title="Mappa: ' + esc(ind) + '" src="https://www.google.com/maps?q=' + encodeURIComponent(q) + '&z=' + (IMPOSTAZIONI.mappa_zoom || 15) + '&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
+    }
+  }
+};
 var impostazioni = function () {
   return api('deb_settings?select=key,value').then(function (r) {
-    (r || []).forEach(function (x) { if (x.key === 'whatsapp') CFG.wa = x.value.replace(/\D/g, ''); else IMPOSTAZIONI[x.key] = Number(x.value); });
-  }).catch(function () {});
+    (r || []).forEach(function (x) {
+      if (x.key === 'whatsapp') { CFG.wa = x.value.replace(/\D/g, ''); return; }
+      if (x.key in IMPOSTAZIONI) { IMPOSTAZIONI[x.key] = Number(x.value); return; }
+      if (x.key in TESTI) TESTI[x.key] = x.value;
+    });
+    applicaTesti();
+  }).catch(function () { applicaTesti(); });
 };
 var categorie = function () { return api('deb_categories?select=id,nome,slug,ordine,parent_id&attivo=eq.true&order=ordine.asc'); };
 var radici = function (cats) { return cats.filter(function (c) { return !c.parent_id; }); };

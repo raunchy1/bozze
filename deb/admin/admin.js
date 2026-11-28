@@ -300,24 +300,71 @@ var categorie = function () {
 };
 var radiciCat = function () { return CATS.filter(function (x) { return !x.parent_id; }).sort(function (a, b) { return a.ordine - b.ordine; }); };
 
-/* ---------- spedizione ---------- */
+/* ---------- negozio: mappa, contatti, spedizione, accesso ---------- */
 var impostazioni = function () {
-  sb.from('deb_settings').select('*').then(ok).then(function (r) {
+  Promise.all([sb.from('deb_settings').select('*').then(ok), sb.auth.getUser().then(function (r) { return (r && r.data && r.data.user) || null; }).catch(function () { return null; })]).then(function (rr) {
+    var r = rr[0], utente = rr[1];
     var v = {}; r.forEach(function (x) { v[x.key] = x.value; });
     var c = $('#contenuto');
-    c.innerHTML = '<div class="testa-pan"><h1>Spedizione e contatti</h1></div><form class="modulo" id="f-imp">' +
+    c.innerHTML = '<div class="testa-pan"><h1>Negozio</h1></div><form class="modulo" id="f-imp">' +
+      '<h2 class="tit-sezione">Dove siamo</h2>' +
+      '<div class="campo"><label for="i-indirizzo">Indirizzo del negozio</label><input id="i-indirizzo" maxlength="120" value="' + esc(v.indirizzo || '') + '" placeholder="Via Roma 12, Anela (SS)"><p class="consiglio">Compare nel piè di pagina del sito e sotto la mappa.</p></div>' +
+      '<div class="campo"><label for="i-orari">Orari di apertura <span class="mut" style="font-weight:400">(facoltativo)</span></label><input id="i-orari" maxlength="160" value="' + esc(v.orari || '') + '" placeholder="Es. Lun–Sab 9:00–13:00 / 16:00–20:00"><p class="consiglio">Se lo lasci vuoto, sul sito non compare niente.</p></div>' +
+      '<div class="campo"><label for="i-mappa">Indirizzo sulla mappa</label><input id="i-mappa" maxlength="160" value="' + esc(v.mappa || '') + '" placeholder="Via Roma 12, Anela SS"><p class="consiglio">La mappa Google si aggiorna da sola. Se lo lasci vuoto usa l’indirizzo del negozio.</p><a class="consiglio" id="a-mappa" href="#" target="_blank" rel="noopener">Apri la mappa per controllare</a></div>' +
+      '<div class="campo"><label for="i-zoom">Quanto vicino</label><select id="i-zoom">' + [13, 14, 15, 16, 17, 18].map(function (z) { return '<option value="' + z + '"' + (Number(v.mappa_zoom || 15) === z ? ' selected' : '') + '>' + (z <= 14 ? 'Paese intero' : z === 15 ? 'Vicino al negozio' : z === 16 ? 'Vicino, dettagliato' : 'Molto vicino (vie)') + '</option>'; }).join('') + '</select></div>' +
+      '<h2 class="tit-sezione">Spedizione</h2>' +
       '<div class="due"><div class="campo"><label for="i-costo">Costo spedizione (€)</label><input id="i-costo" inputmode="decimal" value="' + esc(v.spedizione_costo) + '"></div>' +
       '<div class="campo"><label for="i-soglia">Gratis da (€)</label><input id="i-soglia" inputmode="decimal" value="' + esc(v.soglia_gratis) + '"></div></div>' +
-      '<p class="consiglio">Il costo vale per ordine. Il ritiro ad Anela è sempre gratis.</p>' +
+      '<p class="consiglio">Il costo vale per ordine. Il ritiro in negozio è sempre gratis.</p>' +
+      '<h2 class="tit-sezione">Contatti</h2>' +
       '<div class="campo"><label for="i-wa">Numero WhatsApp per gli ordini</label><input id="i-wa" inputmode="tel" value="' + esc(v.whatsapp) + '"></div>' +
-      '<div class="salva-barra"><button class="b1" type="submit">Salva</button></div></form>';
+      '<div class="salva-barra"><button class="b1" type="submit" id="b-salva-imp">Salva</button></div></form>' +
+      '<h2 class="tit-sezione">Accesso al pannello</h2>' +
+      '<form class="modulo" id="f-pw"><p class="consiglio" style="margin-bottom:12px">Utente: <b>' + esc(utente && utente.email ? utente.email.split('@')[0] : 'deb') + '</b>. Qui cambi la password: dalla prossima volta entri con quella nuova.</p>' +
+      '<div class="due"><div class="campo"><label for="i-pw">Nuova password</label><input id="i-pw" type="password" autocomplete="new-password" minlength="8" placeholder="Almeno 8 caratteri"></div>' +
+      '<div class="campo"><label for="i-pw2">Ripetila</label><input id="i-pw2" type="password" autocomplete="new-password" minlength="8"></div></div>' +
+      '<div class="salva-barra"><button class="b1" type="submit" id="b-pw">Cambia password</button></div></form>';
+
+    var linkMappa = function () {
+      var q = $('#i-mappa').value.trim() || $('#i-indirizzo').value.trim() || 'Via Roma 12, Anela SS';
+      $('#a-mappa').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+    };
+    linkMappa();
+    $('#i-mappa').addEventListener('input', linkMappa);
+    $('#i-indirizzo').addEventListener('input', linkMappa);
+
     $('#f-imp').addEventListener('submit', function (e) {
       e.preventDefault();
+      var ind = $('#i-indirizzo').value.trim(), orari = $('#i-orari').value.trim(), mappa = $('#i-mappa').value.trim();
       var costo = Number($('#i-costo').value.replace(',', '.')), soglia = Number($('#i-soglia').value.replace(',', '.'));
       var wa = $('#i-wa').value.replace(/\D/g, ''); if (/^3\d{8,9}$/.test(wa)) wa = '39' + wa;
-      if (!(costo >= 0) || !(soglia >= 0) || wa.length < 10) { toast('Controllate i valori: numeri senza lettere.', true); return; }
-      sb.from('deb_settings').upsert([{key: 'spedizione_costo', value: String(costo)}, {key: 'soglia_gratis', value: String(soglia)}, {key: 'whatsapp', value: wa}]).then(ok)
-        .then(function () { toast('Salvato: il sito si aggiorna subito'); }).catch(function (e2) { toast(errore(e2), true); });
+      if (!ind) { toast('Scrivete l’indirizzo del negozio.', true); $('#i-indirizzo').focus(); return; }
+      if (!(costo >= 0) || !(soglia >= 0) || wa.length < 10) { toast('Controllate i valori: numeri senza lettere e WhatsApp completo.', true); return; }
+      var b = $('#b-salva-imp'); b.disabled = true;
+      sb.from('deb_settings').upsert([
+        {key: 'indirizzo', value: ind},
+        {key: 'orari', value: orari},
+        {key: 'mappa', value: mappa || ind},
+        {key: 'mappa_zoom', value: String($('#i-zoom').value)},
+        {key: 'spedizione_costo', value: String(costo)},
+        {key: 'soglia_gratis', value: String(soglia)},
+        {key: 'whatsapp', value: wa}
+      ]).then(ok).then(function () {
+        toast('Salvato: mappa, indirizzo e contatti sono già aggiornati sul sito');
+      }).catch(function (e2) { toast(errore(e2), true); }).then(function () { b.disabled = false; });
+    });
+
+    $('#f-pw').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var p = $('#i-pw').value, p2 = $('#i-pw2').value;
+      if (p.length < 8) { toast('La password deve avere almeno 8 caratteri.', true); $('#i-pw').focus(); return; }
+      if (p !== p2) { toast('Le due password non coincidono.', true); $('#i-pw2').focus(); return; }
+      var b = $('#b-pw'); b.disabled = true;
+      sb.auth.updateUser({password: p}).then(function (r2) {
+        if (r2.error) throw r2.error;
+        toast('Password cambiata: dalla prossima volta usate quella nuova.');
+        $('#f-pw').reset();
+      }).catch(function (e2) { toast(errore(e2), true); }).then(function () { b.disabled = false; });
     });
   }).catch(function (e) { $('#contenuto').innerHTML = '<p class="avviso err">' + esc(errore(e)) + '</p>'; });
 };

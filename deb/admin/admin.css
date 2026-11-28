@@ -52,3 +52,8 @@
 .riga-wrap .riga-art{border-bottom:0;flex:1;min-width:0}
 .btn-pic.pubblica{background:var(--verde);border-color:var(--verde);color:#06351C;white-space:nowrap}
 .bar .link-btn{color:var(--verde3)}
+
+/* sezioni del modulo Negozio */
+.tit-sezione{font-family:var(--h);font-size:20px;margin:30px 0 12px;padding-top:18px;border-top:1px solid var(--line)}
+.modulo .tit-sezione:first-of-type{margin-top:6px;padding-top:0;border-top:0}
+#a-mappa{display:inline-block;margin-top:6px;text-decoration:underline;text-underline-offset:3px}

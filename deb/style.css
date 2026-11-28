@@ -176,3 +176,13 @@ legend{font-family:var(--h);font-weight:700;font-size:20px;margin-bottom:8px;pad
 .caricamento{padding:48px 0;color:var(--ink2)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* dove siamo */
+.dove-griglia{display:grid;gap:16px}
+@media (min-width:820px){.dove-griglia{grid-template-columns:1fr 1.45fr;align-items:stretch}}
+.dove-testo{background:var(--soft);border-radius:var(--r);padding:20px}
+.dove-testo b{font-family:var(--h);font-size:20px;display:block;margin-bottom:8px}
+.dove-testo p{margin-top:6px;font-size:15px}
+.dove-mappa{aspect-ratio:4/3;min-height:260px;border-radius:var(--r);overflow:hidden;background:var(--soft);border:1px solid var(--line)}
+.dove-mappa iframe{display:block;width:100%;height:100%;border:0}
+@media (min-width:820px){.dove-mappa{aspect-ratio:auto;min-height:320px}}
