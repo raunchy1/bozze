@@ -429,3 +429,9 @@ body.lb-lock{overflow:hidden}
   .rec__citazioni{grid-column:1/-1;grid-template-columns:1fr 1fr}
   .rec__voto{position:sticky;top:90px}
 }
+
+/* richiesta date su WhatsApp (senza calendario) */
+.bp-richiesta{margin-top:22px;position:relative}
+.bp-richiesta .bp-campi{margin-bottom:2px}
+@media (min-width:760px){.bp-richiesta .bp-campi{grid-template-columns:1fr 1fr}.bp-richiesta .campo:last-child{grid-column:1/-1}}
+.bp-richiesta input[type="date"]{color-scheme:light}
