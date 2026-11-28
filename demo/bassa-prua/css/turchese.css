@@ -64,8 +64,8 @@
 }
 /* Bassa Prua · design "Turchese" — mediterraneo e allegro: il turchese della camera, il corallo, forme tonde */
 :root{
-  --acqua:#E4F4F2;--acqua2:#CDEBE8;--turchese:#2BA3A6;--turchese-s:#1E8386;--petrolio:#0F4C5C;--petrolio2:#0B3A47;
-  --corallo:#EE7B5B;--corallo-s:#D9623F;--sabbia:#F8EBD0;--bianco:#fff;--testo:#3F5E68;--grigio:#53707A;
+  --acqua:#E6F1FA;--acqua2:#CDE2F5;--turchese:#2E86C8;--turchese-s:#1F6EA6;--petrolio:#0E3A5C;--petrolio2:#0A2C47;
+  --corallo:#1273BE;--corallo-s:#0E5C9A;--sabbia:#F8EBD0;--bianco:#fff;--testo:#3A5568;--grigio:#4E6A7F;
   --s:"Pacifico",cursive;--b:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:28px;--wrap:1160px;--pad:clamp(20px,5vw,40px);--head:72px
 }
