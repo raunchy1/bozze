@@ -1,4 +1,4 @@
-/* Pannello Negozio dell'usato DEB — ordini, articoli, categorie, spedizione. */
+/* Pannello Negozio del Usato DEB — ordini, articoli, categorie, spedizione. */
 (function () {
 'use strict';
 var CFG = {
@@ -121,25 +121,55 @@ var articoliLista = function () {
   }).catch(function (e) { $('#contenuto').innerHTML = '<p class="avviso err">' + esc(errore(e)) + '</p>'; });
 };
 var nomeCat = function (id) { var c = CATS.filter(function (x) { return x.id === id; })[0]; return c ? c.nome : 'Senza categoria'; };
-var STATO_ART = {disponibile: 'In vendita', venduto: 'Venduto', nascosto: 'Nascosto'};
+var STATO_ART = {in_attesa: 'In attesa (bloccato)', disponibile: 'In vendita', venduto: 'Venduto', nascosto: 'Nascosto'};
+var nomeCatLungo = function (id) {
+  var c = CATS.filter(function (x) { return x.id === id; })[0]; if (!c) return 'Senza categoria';
+  var p = c.parent_id ? CATS.filter(function (x) { return x.id === c.parent_id; })[0] : null;
+  return (p ? p.nome + ' › ' : '') + c.nome;
+};
+var catOrdinati = function () {
+  var out = [];
+  var giro = function (pid, liv) {
+    CATS.filter(function (c) { return (c.parent_id || null) === pid; }).forEach(function (c) {
+      out.push({c: c, liv: liv});
+      if (liv < 3) giro(c.id, liv + 1);
+    });
+  };
+  giro(null, 0);
+  return out;
+};
 var disegnaArticoli = function () {
   var c = $('#contenuto');
-  var lista = ARTS.filter(function (a) { return !cerca || (a.titolo + ' ' + nomeCat(a.categoria_id)).toLowerCase().indexOf(cerca) !== -1; });
-  c.innerHTML = '<div class="testa-pan"><h1>Articoli <span class="mut num" style="font-size:18px">' + ARTS.filter(function (a) { return a.stato === 'disponibile'; }).length + ' in vendita</span></h1><button class="b1" type="button" id="b-nuovo">+ Nuovo articolo</button></div>' +
+  var lista = ARTS.filter(function (a) { return !cerca || (a.titolo + ' ' + nomeCatLungo(a.categoria_id)).toLowerCase().indexOf(cerca) !== -1; });
+  var bloccati = ARTS.filter(function (a) { return a.stato === 'in_attesa'; }).length;
+  c.innerHTML = '<div class="testa-pan"><h1>Articoli <span class="mut num" style="font-size:18px">' + ARTS.filter(function (a) { return a.stato === 'disponibile'; }).length + ' in vendita' + (bloccati ? ' · ' + bloccati + ' da sbloccare' : '') + '</span></h1><button class="b1" type="button" id="b-nuovo">+ Nuovo articolo</button></div>' +
     '<label class="sr-only" for="cerca">Cerca</label><input class="cerca" id="cerca" type="search" placeholder="Cerca un articolo" value="' + esc(cerca) + '">' +
     '<div class="lista-art">' + lista.map(function (a) {
-      return '<button type="button" class="riga-art" data-id="' + a.id + '"><span class="ph">' + (a.foto[0] ? '<img src="' + esc(urlFoto(a.foto[0])) + '" alt="" loading="lazy">' : '') + '</span>' +
-        '<span><span class="t">' + esc(a.titolo || '(senza titolo)') + '</span><br><span class="s">' + esc(nomeCat(a.categoria_id)) + ' · ' + STATO_ART[a.stato] + (a.quantita > 1 ? ' · ' + a.quantita + ' pezzi' : '') + '</span></span>' +
-        '<span class="num" style="font-weight:700">' + euro(a.prezzo) + '</span></button>';
+      return '<div class="riga-wrap"><button type="button" class="riga-art" data-id="' + a.id + '"><span class="ph">' + (a.foto[0] ? '<img src="' + esc(urlFoto(a.foto[0])) + '" alt="" loading="lazy">' : '') + '</span>' +
+        '<span><span class="t">' + esc(a.titolo || '(senza titolo)') + '</span><br><span class="s">' + esc(nomeCatLungo(a.categoria_id)) + ' · ' + STATO_ART[a.stato] + (a.quantita > 1 ? ' · ' + a.quantita + ' pezzi' : '') + '</span></span>' +
+        '<span class="num" style="font-weight:700">' + euro(a.prezzo) + '</span></button>' +
+        '<button type="button" class="btn-pic' + (a.stato === 'in_attesa' ? ' pubblica' : '') + '" data-pub="' + a.id + '">' + (a.stato === 'in_attesa' ? 'Sblocca' : (a.stato === 'disponibile' ? 'Blocca' : 'Sblocca')) + '</button></div>';
     }).join('') + '</div>';
   $('#b-nuovo').addEventListener('click', function () { modulo(null); });
   var ci = $('#cerca'); ci.addEventListener('input', function () { cerca = ci.value.trim().toLowerCase(); var p = ci.selectionStart; disegnaArticoli(); var n = $('#cerca'); n.focus(); n.setSelectionRange(p, p); });
   $$('.riga-art', c).forEach(function (b) { b.addEventListener('click', function () { modulo(ARTS.filter(function (a) { return a.id === Number(b.getAttribute('data-id')); })[0]); }); });
+  $$('[data-pub]', c).forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var id = Number(b.getAttribute('data-pub'));
+      var a = ARTS.filter(function (x) { return x.id === id; })[0];
+      var nuovoStato = a.stato === 'disponibile' ? 'in_attesa' : 'disponibile';
+      b.disabled = true;
+      sb.from('deb_products').update({stato: nuovoStato, updated_at: new Date().toISOString()}).eq('id', id).then(ok)
+        .then(function () { toast(nuovoStato === 'disponibile' ? 'Articolo sbloccato: ora si vede sul sito' : 'Articolo bloccato: non si vede più sul sito'); articoliLista(); })
+        .catch(function (err) { b.disabled = false; toast(errore(err), true); });
+    });
+  });
 };
 var CONDIZIONI = ['Nuovo', 'Nuovo con etichetta', 'Come nuovo', 'Ottime condizioni', 'Buone condizioni', 'Usato, con segni di usura', 'Da collezione, non testato'];
 var modulo = function (a) {
   var nuovo = !a;
-  a = a || {titolo: '', descrizione: '', prezzo: '', condizione: 'Buone condizioni', dettaglio: '', foto: [], quantita: 1, stato: 'disponibile', categoria_id: CATS[0] && CATS[0].id};
+  a = a || {titolo: '', descrizione: '', prezzo: '', condizione: 'Buone condizioni', dettaglio: '', foto: [], quantita: 1, stato: 'in_attesa', categoria_id: ((CATS.filter(function (x) { return !x.parent_id; })[0] || CATS[0] || {}).id)};
   var fotos = (a.foto || []).slice();
   var c = $('#contenuto');
   c.innerHTML = '<div class="testa-pan"><button type="button" class="link-btn" id="b-indietro">← Tutti gli articoli</button></div>' +
@@ -148,12 +178,12 @@ var modulo = function (a) {
     '<div class="campo"><label for="a-titolo">Nome dell’articolo</label><input id="a-titolo" required maxlength="120" value="' + esc(a.titolo) + '" placeholder="Es. Lampada da tavolo in ottone"></div>' +
     '<div class="due"><div class="campo"><label for="a-prezzo">Prezzo (€)</label><input id="a-prezzo" required inputmode="decimal" value="' + esc(a.prezzo) + '" placeholder="15"></div>' +
     '<div class="campo"><label for="a-q">Pezzi disponibili</label><input id="a-q" type="number" min="0" max="999" value="' + esc(a.quantita) + '"></div></div>' +
-    '<div class="campo"><label for="a-cat">Categoria</label><select id="a-cat">' + CATS.map(function (x) { return '<option value="' + x.id + '"' + (x.id === a.categoria_id ? ' selected' : '') + '>' + esc(x.nome) + '</option>'; }).join('') + '</select></div>' +
+    '<div class="campo"><label for="a-cat">Categoria</label><select id="a-cat">' + catOrdinati().map(function (x) { return '<option value="' + x.c.id + '"' + (x.c.id === a.categoria_id ? ' selected' : '') + '>' + esc((x.liv ? '— ' : '') + x.c.nome) + '</option>'; }).join('') + '</select></div>' +
     '<div class="campo"><label for="a-cond">Condizione</label><input id="a-cond" list="l-cond" value="' + esc(a.condizione) + '"><datalist id="l-cond">' + CONDIZIONI.map(function (x) { return '<option value="' + esc(x) + '">'; }).join('') + '</datalist></div>' +
     '<div class="campo"><label for="a-det">Taglia o dettaglio <span class="mut" style="font-weight:400">(facoltativo)</span></label><input id="a-det" maxlength="80" value="' + esc(a.dettaglio) + '" placeholder="Es. Taglia M, 30×20 cm"></div>' +
     '<div class="campo"><label for="a-desc">Descrizione</label><textarea id="a-desc" maxlength="1500" style="min-height:130px">' + esc(a.descrizione) + '</textarea><p class="consiglio">Scrivete com’è davvero: condizioni, misure, difetti. Aiuta a vendere e a evitare resi.</p></div>' +
-    '<div class="campo"><label for="a-stato">Sul sito</label><select id="a-stato">' + Object.keys(STATO_ART).map(function (s) { return '<option value="' + s + '"' + (s === a.stato ? ' selected' : '') + '>' + STATO_ART[s] + '</option>'; }).join('') + '</select></div>' +
-    '<div class="salva-barra"><button class="b1" type="submit" id="b-salva">' + (nuovo ? 'Pubblica articolo' : 'Salva modifiche') + '</button>' +
+    '<div class="campo"><label for="a-stato">Sul sito</label><select id="a-stato">' + Object.keys(STATO_ART).map(function (s) { return '<option value="' + s + '"' + (s === a.stato ? ' selected' : '') + '>' + STATO_ART[s] + '</option>'; }).join('') + '</select><p class="consiglio">Lasciatelo su “In attesa” e l’articolo resta bloccato: dall’elenco potete sbloccarlo con un tocco quando è pronto.</p></div>' +
+    '<div class="salva-barra"><button class="b1" type="submit" id="b-salva">' + (nuovo ? 'Salva articolo' : 'Salva modifiche') + '</button>' +
     (nuovo ? '' : '<button class="btn-pic pericolo" type="button" id="b-elimina">Elimina</button>') + '</div></form>';
   var disegnaFoto = function () {
     $('#foto-ed').innerHTML = fotos.map(function (f, i) {
@@ -186,7 +216,7 @@ var modulo = function (a) {
       dettaglio: $('#a-det').value.trim(), descrizione: $('#a-desc').value.trim(), stato: stato, foto: fotos, updated_at: new Date().toISOString()};
     var b = $('#b-salva'); b.disabled = true;
     (nuovo ? sb.from('deb_products').insert(dati) : sb.from('deb_products').update(dati).eq('id', a.id)).then(ok)
-      .then(function () { toast(nuovo ? 'Articolo pubblicato' : 'Modifiche salvate'); articoliLista(); })
+      .then(function () { toast(nuovo ? (dati.stato === 'disponibile' ? 'Articolo pubblicato' : 'Articolo salvato e bloccato') : 'Modifiche salvate'); articoliLista(); })
       .catch(function (err) { b.disabled = false; toast(errore(err), true); });
   });
   var bel = $('#b-elimina');
@@ -220,27 +250,38 @@ var categorie = function () {
   Promise.all([caricaCat(), sb.from('deb_products').select('categoria_id').then(ok)]).then(function (r) {
     var uso = {}; r[1].forEach(function (p) { uso[p.categoria_id] = (uso[p.categoria_id] || 0) + 1; });
     var c = $('#contenuto');
-    c.innerHTML = '<div class="testa-pan"><h1>Categorie</h1></div><p class="mut" style="margin-bottom:10px">Sul sito si vedono solo le categorie con almeno un articolo in vendita.</p>' +
-      CATS.map(function (x, i) {
-        return '<div class="riga-cat"><div><label class="sr-only" for="cat-' + x.id + '">Nome</label><input type="text" id="cat-' + x.id + '" data-nome="' + x.id + '" value="' + esc(x.nome) + '"><div class="consiglio">' + (uso[x.id] || 0) + ' articoli</div></div>' +
-          '<div class="ctr"><button type="button" data-su="' + i + '" aria-label="Sposta su"' + (i === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-giu="' + i + '" aria-label="Sposta giù"' + (i === CATS.length - 1 ? ' disabled' : '') + '>↓</button>' +
-          (uso[x.id] ? '' : '<button type="button" data-del="' + x.id + '" aria-label="Elimina categoria">✕</button>') + '</div></div>';
+    var ord = catOrdinati();
+    var sib = function (x) { return CATS.filter(function (y) { return (y.parent_id || null) === (x.parent_id || null); }).sort(function (a, b) { return a.ordine - b.ordine; }); };
+    c.innerHTML = '<div class="testa-pan"><h1>Categorie</h1></div><p class="mut" style="margin-bottom:10px">Sul sito si vedono solo le categorie con almeno un articolo in vendita. Le sottocategorie stanno sotto il reparto scelto.</p>' +
+      ord.map(function (x) {
+        var cat = x.c, fratelli = sib(cat), pos = fratelli.indexOf(cat);
+        var padre = cat.parent_id ? CATS.filter(function (y) { return y.id === cat.parent_id; })[0] : null;
+        return '<div class="riga-cat"><div><label class="sr-only" for="cat-' + cat.id + '">Nome</label><input type="text" id="cat-' + cat.id + '" data-nome="' + cat.id + '" value="' + esc(cat.nome) + '"' + (x.liv ? ' style="margin-left:' + (x.liv * 18) + 'px;max-width:calc(100% - ' + (x.liv * 18) + 'px)"' : '') + '><div class="consiglio"' + (x.liv ? ' style="margin-left:' + (x.liv * 18) + 'px"' : '') + '>' + (padre ? 'Sottocategoria di ' + esc(padre.nome) + ' · ' : '') + (uso[cat.id] || 0) + ' articoli</div></div>' +
+          '<div class="ctr"><button type="button" data-muovi="' + cat.id + '|-1" aria-label="Sposta su"' + (pos === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-muovi="' + cat.id + '|1" aria-label="Sposta giù"' + (pos === fratelli.length - 1 ? ' disabled' : '') + '>↓</button>' +
+          (uso[cat.id] || CATS.some(function (y) { return y.parent_id === cat.id; }) ? '' : '<button type="button" data-del="' + cat.id + '" aria-label="Elimina categoria">✕</button>') + '</div></div>';
       }).join('') +
-      '<form id="f-cat" class="riga-cat" style="border:0;margin-top:10px"><div><label class="sr-only" for="cat-nuova">Nuova categoria</label><input type="text" id="cat-nuova" placeholder="Nuova categoria, es. Arredamento" maxlength="60"></div><button class="b1" type="submit">Aggiungi</button></form>';
+      '<form id="f-cat" class="riga-cat" style="border:0;margin-top:10px"><div><label class="sr-only" for="cat-nuova">Nuova categoria</label><input type="text" id="cat-nuova" placeholder="Nuova categoria, es. Arredamento" maxlength="60"><label for="cat-padre" class="consiglio" style="display:block;margin-top:8px">Dentro quale reparto?</label><select id="cat-padre" style="min-height:46px;border:1.5px solid var(--line);border-radius:var(--r);padding:0 10px;background:#fff;font:inherit"><option value="">Nessuno (reparto principale)</option>' + radiciCat().map(function (x) { return '<option value="' + x.id + '">' + esc(x.nome) + '</option>'; }).join('') + '</select></div><button class="b1" type="submit">Aggiungi</button></form>';
     $$('[data-nome]', c).forEach(function (inp) {
       inp.addEventListener('change', function () {
         var v = inp.value.trim(); if (!v) return;
         sb.from('deb_categories').update({nome: v}).eq('id', Number(inp.getAttribute('data-nome'))).then(ok).then(function () { toast('Nome salvato'); }).catch(function (e) { toast(errore(e), true); });
       });
     });
-    var sposta = function (i, j) {
-      var a = CATS[i], b = CATS[j];
-      Promise.all([sb.from('deb_categories').update({ordine: j}).eq('id', a.id), sb.from('deb_categories').update({ordine: i}).eq('id', b.id)])
-        .then(function (rr) { rr.forEach(ok); CATS.forEach(function (x, k) { if (k !== i && k !== j && x.ordine !== k) sb.from('deb_categories').update({ordine: k}).eq('id', x.id).then(function () {}); }); categorie(); })
+    var muovi = function (id, dir) {
+      var cat = CATS.filter(function (x) { return x.id === id; })[0]; if (!cat) return;
+      var fratelli = sib(cat), k = fratelli.indexOf(cat), j = k + dir;
+      if (j < 0 || j >= fratelli.length) return;
+      var a = fratelli[k], b = fratelli[j];
+      Promise.all([sb.from('deb_categories').update({ordine: j}).eq('id', a.id), sb.from('deb_categories').update({ordine: k}).eq('id', b.id)])
+        .then(function (rr) { rr.forEach(ok); categorie(); })
         .catch(function (e) { toast(errore(e), true); });
     };
-    $$('[data-su]', c).forEach(function (b) { b.addEventListener('click', function () { var i = Number(b.getAttribute('data-su')); sposta(i, i - 1); }); });
-    $$('[data-giu]', c).forEach(function (b) { b.addEventListener('click', function () { var i = Number(b.getAttribute('data-giu')); sposta(i, i + 1); }); });
+    $$('[data-muovi]', c).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-muovi').split('|');
+        muovi(Number(v[0]), Number(v[1]));
+      });
+    });
     $$('[data-del]', c).forEach(function (b) {
       b.addEventListener('click', function () {
         if (!confirm('Eliminare questa categoria vuota?')) return;
@@ -250,11 +291,14 @@ var categorie = function () {
     $('#f-cat').addEventListener('submit', function (e) {
       e.preventDefault();
       var v = $('#cat-nuova').value.trim(); if (!v) return;
-      var slug = v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36).slice(-3);
-      sb.from('deb_categories').insert({nome: v, slug: slug, ordine: CATS.length}).then(ok).then(function () { toast('Categoria aggiunta'); categorie(); }).catch(function (e2) { toast(errore(e2), true); });
+      var padre = $('#cat-padre').value;
+      var slug = v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36).slice(-3);
+      var ordine = CATS.filter(function (x) { return (x.parent_id || null) === (padre ? Number(padre) : null); }).length;
+      sb.from('deb_categories').insert({nome: v, slug: slug, ordine: ordine, parent_id: padre ? Number(padre) : null}).then(ok).then(function () { toast('Categoria aggiunta'); categorie(); }).catch(function (e2) { toast(errore(e2), true); });
     });
   }).catch(function (e) { $('#contenuto').innerHTML = '<p class="avviso err">' + esc(errore(e)) + '</p>'; });
 };
+var radiciCat = function () { return CATS.filter(function (x) { return !x.parent_id; }).sort(function (a, b) { return a.ordine - b.ordine; }); };
 
 /* ---------- spedizione ---------- */
 var impostazioni = function () {

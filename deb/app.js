@@ -41,7 +41,15 @@ var impostazioni = function () {
     (r || []).forEach(function (x) { if (x.key === 'whatsapp') CFG.wa = x.value.replace(/\D/g, ''); else IMPOSTAZIONI[x.key] = Number(x.value); });
   }).catch(function () {});
 };
-var categorie = function () { return api('deb_categories?select=id,nome,slug,ordine&attivo=eq.true&order=ordine.asc'); };
+var categorie = function () { return api('deb_categories?select=id,nome,slug,ordine,parent_id&attivo=eq.true&order=ordine.asc'); };
+var radici = function (cats) { return cats.filter(function (c) { return !c.parent_id; }); };
+var figli = function (cats, id) { return cats.filter(function (c) { return c.parent_id === id; }); };
+var famiglia = function (cats, id) {
+  var out = [id];
+  var giro = function (pid) { cats.forEach(function (c) { if (c.parent_id === pid && out.indexOf(c.id) < 0) { out.push(c.id); giro(c.id); } }); };
+  giro(id); return out;
+};
+var padreDi = function (cats, c) { return c && c.parent_id ? cats.filter(function (x) { return x.id === c.parent_id; })[0] : null; };
 var CAMPI = 'id,titolo,descrizione,prezzo,condizione,dettaglio,foto,quantita,stato,categoria_id,ordine,created_at';
 var articoli = function (filtro) { return api('deb_products?select=' + CAMPI + (filtro || '') + '&order=stato.asc,created_at.desc,ordine.asc'); };
 var disponibile = function (a) { return a.stato === 'disponibile' && a.quantita > 0; };
@@ -80,7 +88,8 @@ var errRete = 'Non riusciamo a caricare gli articoli. Controllate la connessione
 var home = function () {
   Promise.all([categorie(), articoli(), impostazioni()]).then(function (r) {
     var cats = r[0], arts = r[1];
-    var conta = {}; arts.forEach(function (a) { if (disponibile(a)) conta[a.categoria_id] = (conta[a.categoria_id] || 0) + 1; });
+    var conta = {};
+    arts.forEach(function (a) { if (!disponibile(a)) return; cats.forEach(function (c) { if (famiglia(cats, c.id).indexOf(a.categoria_id) !== -1) conta[c.id] = (conta[c.id] || 0) + 1; }); });
     var disp = arts.filter(disponibile);
     var mos = disp.slice(0, 4);
     document.getElementById('mosaico').innerHTML = mos.map(function (a) {
@@ -90,7 +99,7 @@ var home = function () {
       '<div><b class="num">' + euro(IMPOSTAZIONI.spedizione_costo) + '</b><span>Spedizione</span></div>' +
       '<div><b class="num">' + euro(IMPOSTAZIONI.soglia_gratis) + '</b><span>Da qui, è gratis</span></div>' +
       '<div><b>Anela</b><span>Ritiro in negozio</span></div>';
-    document.getElementById('reparti').innerHTML = cats.filter(function (c) { return conta[c.id]; }).map(function (c) {
+    document.getElementById('reparti').innerHTML = radici(cats).filter(function (c) { return conta[c.id]; }).map(function (c) {
       return '<a href="catalogo.html?c=' + encodeURIComponent(c.slug) + '"><span>' + esc(c.nome) + '</span><span class="mut num">' + conta[c.id] + NB + '›</span></a>';
     }).join('');
     document.getElementById('arrivi').innerHTML = disp.slice(0, 8).map(scheda).join('');
@@ -103,16 +112,28 @@ var catalogo = function () {
   Promise.all([categorie(), articoli()]).then(function (r) {
     var cats = r[0], arts = r[1];
     var cat = cats.filter(function (c) { return c.slug === slug; })[0];
-    var lista = cat ? arts.filter(function (a) { return a.categoria_id === cat.id; }) : arts;
+    var ids = cat ? famiglia(cats, cat.id) : null;
+    var lista = cat ? arts.filter(function (a) { return ids.indexOf(a.categoria_id) !== -1; }) : arts;
     var titolo = cat ? cat.nome : 'Tutti gli articoli';
-    document.title = titolo + ' · Negozio dell’usato DEB';
-    var conCat = cats.filter(function (c) { return arts.some(function (a) { return a.categoria_id === c.id; }); });
+    var padre = padreDi(cats, cat);
+    document.title = titolo + ' · Negozio del Usato DEB';
+    var conArticoli = function (c) { var f = famiglia(cats, c.id); return arts.some(function (a) { return f.indexOf(a.categoria_id) !== -1; }); };
+    var top = radici(cats).filter(conArticoli);
+    var sotto = cat ? figli(cats, cat.id).filter(conArticoli) : [];
+    var briciole = '<a href="./">Home</a> › ' + (padre ? '<a href="catalogo.html?c=' + encodeURIComponent(padre.slug) + '">' + esc(padre.nome) + '</a> › ' : '') + esc(titolo);
     var nDisp = lista.filter(disponibile).length;
-    app.innerHTML = '<div class="w"><div class="briciole"><a href="./">Home</a> › ' + esc(titolo) + '</div>' +
+    app.innerHTML = '<div class="w"><div class="briciole">' + briciole + '</div>' +
       '<h1 class="tit-pag">' + esc(titolo) + '</h1>' +
       '<div class="filtri"><nav aria-label="Reparti"><a href="catalogo.html"' + (!cat ? ' aria-current="page"' : '') + '>Tutti</a>' +
-      conCat.map(function (c) { return '<a href="catalogo.html?c=' + encodeURIComponent(c.slug) + '"' + (cat && c.id === cat.id ? ' aria-current="page"' : '') + '>' + esc(c.nome) + '</a>'; }).join('') +
+      top.map(function (c) {
+        var attivo = cat && famiglia(cats, c.id).indexOf(cat.id) !== -1;
+        return '<a href="catalogo.html?c=' + encodeURIComponent(c.slug) + '"' + (attivo ? ' aria-current="page"' : '') + '>' + esc(c.nome) + '</a>';
+      }).join('') +
       '</nav><span class="mut num" style="font-size:14px;white-space:nowrap">' + nDisp + ' disponibili</span></div>' +
+      (sotto.length ? '<div class="sottofiltri" aria-label="Sottocategorie">' + sotto.map(function (c) {
+        var attivo = cat.id === c.id;
+        return '<a href="catalogo.html?c=' + encodeURIComponent(c.slug) + '"' + (attivo ? ' aria-current="page"' : '') + '>' + esc(c.nome) + '</a>';
+      }).join('') + '</div>' : '') +
       (lista.length ? '<div class="griglia">' + lista.map(scheda).join('') + '</div>' : '<p class="vuoto">In questo reparto per ora non ci sono articoli. Torna a trovarci presto.</p>') + '</div>';
   }).catch(function () { errore(errRete); });
 };
@@ -122,8 +143,10 @@ var articolo = function () {
   Promise.all([api('deb_products?select=' + CAMPI + '&id=eq.' + id), categorie(), impostazioni()]).then(function (r) {
     var a = r[0] && r[0][0];
     if (!a) return errore('Questo articolo non c’è più. Forse è stato venduto: guarda gli altri nel negozio.');
-    var cat = r[1].filter(function (c) { return c.id === a.categoria_id; })[0];
-    document.title = a.titolo + ' · Negozio dell’usato DEB';
+    var cats = r[1];
+    var cat = cats.filter(function (c) { return c.id === a.categoria_id; })[0];
+    var padre = padreDi(cats, cat);
+    document.title = a.titolo + ' · Negozio del Usato DEB';
     var md = document.querySelector('meta[name=description]'); if (md) md.content = a.descrizione.slice(0, 155);
     var disp = disponibile(a);
     var fotos = (a.foto || []).filter(Boolean);
@@ -132,7 +155,7 @@ var articolo = function () {
       (fotos.length > 1 ? '<div class="miniature">' + fotos.map(function (f, i) {
         return '<button type="button" data-foto="' + esc(foto(f)) + '" aria-pressed="' + (i === 0) + '" aria-label="Foto ' + (i + 1) + '"><img src="' + esc(foto(f)) + '" alt="" width="136" height="136"></button>';
       }).join('') + '</div>' : '') + '</div>' +
-      '<div class="info"><div class="mut" style="font-size:14px">' + (cat ? '<a href="catalogo.html?c=' + encodeURIComponent(cat.slug) + '">' + esc(cat.nome) + '</a>' : '') + '</div>' +
+      '<div class="info"><div class="mut" style="font-size:14px">' + (padre ? '<a href="catalogo.html?c=' + encodeURIComponent(padre.slug) + '">' + esc(padre.nome) + '</a> › ' : '') + (cat ? '<a href="catalogo.html?c=' + encodeURIComponent(cat.slug) + '">' + esc(cat.nome) + '</a>' : '') + '</div>' +
       '<h1>' + esc(a.titolo) + '</h1><div class="prezzo num">' + euro(a.prezzo) + '</div>' +
       '<p class="desc">' + esc(a.descrizione) + '</p>' +
       '<div class="righe"><div><span>Condizione</span><span>' + esc(a.condizione) + '</span></div>' +
@@ -158,7 +181,7 @@ var articolo = function () {
       aggiungi(a.id, 1);
       document.getElementById('msg').innerHTML = '<p class="avviso ok">Aggiunto alla borsa. <a href="borsa.html">Vai alla borsa</a></p>';
     });
-    articoli('&categoria_id=eq.' + a.categoria_id + '&id=neq.' + a.id + '&stato=eq.disponibile&limit=4').then(function (s) {
+    articoli('&categoria_id=in.(' + famiglia(cats, a.categoria_id).join(',') + ')&id=neq.' + a.id + '&stato=eq.disponibile&limit=4').then(function (s) {
       if (!s.length) return;
       document.getElementById('simili').innerHTML = '<div class="testa-sez"><h2>Dallo stesso reparto</h2></div><div class="griglia">' + s.map(scheda).join('') + '</div>';
     }).catch(function () {});
